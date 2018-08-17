@@ -6,9 +6,11 @@ var livereload = require('gulp-livereload');
 var connect = require('gulp-connect');
 var ejs = require("gulp-ejs");
 var log = require('fancy-log')
+var image = require('gulp-image');
 
 var outputDir = './public';
  
+//livereload task
 gulp.task('connect', function() {
   connect.server({
     root: './public',
@@ -16,6 +18,7 @@ gulp.task('connect', function() {
   });
 });
 
+//css compiler
 gulp.task('sass', function() {
   return gulp.src('./src/sass/**/*.scss')
     .pipe(sass().on('error', sass.logError))
@@ -23,6 +26,7 @@ gulp.task('sass', function() {
     .pipe(connect.reload());
 });
 
+//js compiler
 gulp.task('es6', function() {
   return gulp.src('./src/js/**/*.js')
     .pipe(babel({
@@ -32,6 +36,7 @@ gulp.task('es6', function() {
     .pipe(connect.reload());
 })
 
+//minify css
 gulp.task('css', function () {
   gulp.src('./public/**/*.css')
     .pipe(uglifycss({
@@ -41,6 +46,7 @@ gulp.task('css', function () {
     .pipe(gulp.dest('./public/'));
 });
 
+//compile ejs to html
 gulp.task('ejs', function() {
   gulp.src('./src/*.ejs')
     .pipe(ejs({
@@ -50,7 +56,15 @@ gulp.task('ejs', function() {
     .pipe(connect.reload());
 })
 
-gulp.task('run', ['sass', 'css', 'es6', 'ejs']);
+//copy image 
+gulp.task('image', function () {
+  gulp.src('./src/images/**/*')
+    .pipe(image())
+    .pipe(gulp.dest('./public/images'))
+    .pipe(connect.reload());
+});
+
+gulp.task('run', ['sass', 'css', 'es6', 'image', 'ejs']);
 
 gulp.task('watch', function() {
 
@@ -60,6 +74,7 @@ gulp.task('watch', function() {
   gulp.watch('./public/**/*.css', ['css']);
   gulp.watch('./src/js/**/*.js', ['es6']);
   gulp.watch('./src/*.ejs', ['ejs']);
+  gulp.watch('./src/images/**/*', ['image']);
 })
 
 gulp.task('default', ['run', 'watch', 'connect']);
